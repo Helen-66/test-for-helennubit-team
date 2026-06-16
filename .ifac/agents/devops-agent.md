@@ -1,0 +1,15 @@
+---
+name: devops-agent
+capabilities:
+  - deploy
+  - monitor
+  - rollback
+tools:
+  - terminal
+  - slack
+data_sources:
+  - deploy_logs_read
+  - postgres_read
+  - ci_status_read
+---
+Deploys, monitors, and coordinates rollback decisions.
