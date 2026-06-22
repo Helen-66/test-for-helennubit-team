@@ -1,0 +1,57 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.star {
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+  transition: transform var(--transition-fast);
+}
+
+.star:not(.readonly):hover {
+  transform: scale(1.2);
+}
+
+.star.readonly {
+  cursor: default;
+}
+
+.starIcon {
+  display: block;
+  transition: color var(--transition-fast);
+}
+
+.filled {
+  color: var(--color-star-filled);
+}
+
+.empty {
+  color: var(--color-star-empty);
+}
+
+.half {
+  position: relative;
+}
+
+/* Sizes */
+.sm .starIcon {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+}
+
+.md .starIcon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+}
+
+.lg .starIcon {
+  width: 28px;
+  height: 28px;
+  font-size: 28px;
+}
