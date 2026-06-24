@@ -8,9 +8,10 @@ import {
 } from './services/diaryStorage';
 import DiaryForm from './components/DiaryForm';
 import DiaryCard from './components/DiaryCard';
+import StatsDashboard from './components/StatsDashboard';
 import './App.css';
 
-type View = 'list' | 'create' | 'edit';
+type View = 'list' | 'create' | 'edit' | 'stats';
 
 export default function App() {
   const [entries, setEntries] = useState<DiaryEntry[]>(() => getAllEntries());
@@ -58,13 +59,22 @@ export default function App() {
       <header className="app-header">
         <h1>📝 观影日记</h1>
         {view === 'list' && (
-          <button className="btn btn--primary" onClick={() => setView('create')}>
-            + 新建日记
-          </button>
+          <div className="app-header__actions">
+            <button className="btn btn--secondary" onClick={() => setView('stats')}>
+              📊 统计
+            </button>
+            <button className="btn btn--primary" onClick={() => setView('create')}>
+              + 新建日记
+            </button>
+          </div>
         )}
       </header>
 
       <main className="app-main">
+        {view === 'stats' && (
+          <StatsDashboard entries={entries} onBack={() => setView('list')} />
+        )}
+
         {view === 'create' && (
           <DiaryForm onSubmit={handleCreate} onCancel={handleCancel} />
         )}
