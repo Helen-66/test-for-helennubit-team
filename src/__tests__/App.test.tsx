@@ -11,7 +11,7 @@ describe('App', () => {
   it('renders header and empty state', () => {
     render(<App />);
     expect(screen.getByText(/观影日记/)).toBeInTheDocument();
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
+    expect(screen.getByText(/你的电影收藏是空的/)).toBeInTheDocument();
   });
 
   it('opens create form and creates a diary entry', async () => {
@@ -29,7 +29,7 @@ describe('App', () => {
     await user.click(screen.getByText('创建日记'));
 
     expect(screen.getByText('Inception')).toBeInTheDocument();
-    expect(screen.queryByText('还没有日记')).not.toBeInTheDocument();
+    expect(screen.queryByText(/你的电影收藏是空的/)).not.toBeInTheDocument();
   });
 
   it('edits an existing diary entry', async () => {
@@ -58,15 +58,15 @@ describe('App', () => {
 
     expect(screen.getByText('Inception')).toBeInTheDocument();
     await user.click(screen.getByText('删除'));
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
+    expect(screen.getByText(/你的电影收藏是空的/)).toBeInTheDocument();
   });
 
-  it('cancels creation and returns to list', async () => {
+  it('cancels creation and returns to collection', async () => {
     const user = userEvent.setup();
     render(<App />);
 
     await user.click(screen.getByText('+ 新建日记'));
     await user.click(screen.getByText('取消'));
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
+    expect(screen.getByText(/你的电影收藏是空的/)).toBeInTheDocument();
   });
 });
