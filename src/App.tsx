@@ -6,23 +6,31 @@ import {
   updateEntry,
   deleteEntry,
 } from './services/diaryStorage';
+import { useCollection } from './hooks/useCollection';
 import DiaryForm from './components/DiaryForm';
-import DiaryCard from './components/DiaryCard';
+import CollectionToolbar from './components/CollectionToolbar';
+import TimelineView from './components/TimelineView';
+import GridView from './components/GridView';
+import ListView from './components/ListView';
+import EmptyCollection from './components/EmptyCollection';
+import Pagination from './components/Pagination';
 import './App.css';
 
-type View = 'list' | 'create' | 'edit';
+type View = 'collection' | 'create' | 'edit';
 
 export default function App() {
-  const [entries, setEntries] = useState<DiaryEntry[]>(() => getAllEntries());
-  const [view, setView] = useState<View>('list');
+  const [allEntries, setAllEntries] = useState<DiaryEntry[]>(() => getAllEntries());
+  const [view, setView] = useState<View>('collection');
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const refresh = useCallback(() => setEntries(getAllEntries()), []);
+  const collection = useCollection(allEntries);
+
+  const refresh = useCallback(() => setAllEntries(getAllEntries()), []);
 
   const handleCreate = (draft: DiaryEntryDraft) => {
     createEntry(draft);
     refresh();
-    setView('list');
+    setView('collection');
   };
 
   const handleUpdate = (draft: DiaryEntryDraft) => {
@@ -30,7 +38,7 @@ export default function App() {
       updateEntry(editingId, draft);
       refresh();
       setEditingId(null);
-      setView('list');
+      setView('collection');
     }
   };
 
@@ -48,16 +56,45 @@ export default function App() {
 
   const handleCancel = () => {
     setEditingId(null);
-    setView('list');
+    setView('collection');
   };
 
-  const editingEntry = editingId ? entries.find((e) => e.id === editingId) : undefined;
+  const editingEntry = editingId ? allEntries.find((e) => e.id === editingId) : undefined;
+
+  const renderViewContent = () => {
+    switch (collection.viewMode) {
+      case 'timeline':
+        return (
+          <TimelineView
+            entries={collection.entries}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        );
+      case 'grid':
+        return (
+          <GridView
+            entries={collection.entries}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        );
+      case 'list':
+        return (
+          <ListView
+            entries={collection.entries}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        );
+    }
+  };
 
   return (
     <div className="app">
       <header className="app-header">
         <h1>📝 观影日记</h1>
-        {view === 'list' && (
+        {view === 'collection' && (
           <button className="btn btn--primary" onClick={() => setView('create')}>
             + 新建日记
           </button>
@@ -77,23 +114,50 @@ export default function App() {
           />
         )}
 
-        {view === 'list' && (
+        {view === 'collection' && (
           <>
-            {entries.length === 0 ? (
-              <div className="empty-state">
-                <p>还没有日记，点击「新建日记」开始记录吧！</p>
-              </div>
+            {allEntries.length === 0 && !collection.hasActiveFilters ? (
+              <EmptyCollection
+                hasFilters={false}
+                onReset={collection.resetFilters}
+                onCreate={() => setView('create')}
+              />
             ) : (
-              <div className="diary-list">
-                {entries.map((entry) => (
-                  <DiaryCard
-                    key={entry.id}
-                    entry={entry}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
+              <>
+                <CollectionToolbar
+                  viewMode={collection.viewMode}
+                  onViewModeChange={collection.setViewMode}
+                  sort={collection.sort}
+                  onSortChange={collection.updateSort}
+                  filter={collection.filter}
+                  onFilterChange={collection.updateFilter}
+                  search={collection.search}
+                  onSearchChange={collection.updateSearch}
+                  onReset={collection.resetFilters}
+                  hasActiveFilters={collection.hasActiveFilters}
+                  availableYears={collection.availableYears}
+                  availableTags={collection.availableTags}
+                  totalFiltered={collection.totalFiltered}
+                  totalEntries={allEntries.length}
+                />
+
+                {collection.entries.length === 0 ? (
+                  <EmptyCollection
+                    hasFilters={collection.hasActiveFilters}
+                    onReset={collection.resetFilters}
+                    onCreate={() => setView('create')}
                   />
-                ))}
-              </div>
+                ) : (
+                  <>
+                    {renderViewContent()}
+                    <Pagination
+                      page={collection.page}
+                      totalPages={collection.totalPages}
+                      onPageChange={collection.setPage}
+                    />
+                  </>
+                )}
+              </>
             )}
           </>
         )}
