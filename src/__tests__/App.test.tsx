@@ -1,72 +1,81 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn().mockResolvedValue({ data: { session: null } }),
+      onAuthStateChange: vi.fn().mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      }),
+      signUp: vi.fn(),
+      signInWithPassword: vi.fn(),
+      signInWithOAuth: vi.fn(),
+      signOut: vi.fn(),
+    },
+    from: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
+      delete: vi.fn().mockReturnThis(),
+      upsert: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      order: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    }),
+    storage: {
+      from: vi.fn().mockReturnValue({
+        upload: vi.fn().mockResolvedValue({ error: null }),
+        getPublicUrl: vi.fn().mockReturnValue({ data: { publicUrl: '' } }),
+      }),
+    },
+  },
+}));
+
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { AuthProvider } from '../contexts/AuthContext';
 import App from '../App';
+
+function renderApp() {
+  return render(
+    <AuthProvider>
+      <App />
+    </AuthProvider>,
+  );
+}
 
 beforeEach(() => {
   localStorage.clear();
 });
 
 describe('App', () => {
-  it('renders header and empty state', () => {
-    render(<App />);
-    expect(screen.getByText(/观影日记/)).toBeInTheDocument();
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
+  it('renders header and shows auth form when not authenticated', async () => {
+    renderApp();
+    expect(await screen.findByText(/观影日记/)).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: '登录' })).toBeInTheDocument();
   });
 
-  it('opens create form and creates a diary entry', async () => {
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByText('+ 新建日记'));
-    expect(screen.getByText('新建日记')).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText('电影名称 *'), 'Inception');
-
-    const stars = screen.getAllByRole('radio');
-    await user.click(stars[4]); // 5 stars
-
-    await user.click(screen.getByText('创建日记'));
-
-    expect(screen.getByText('Inception')).toBeInTheDocument();
-    expect(screen.queryByText('还没有日记')).not.toBeInTheDocument();
+  it('shows email and password fields in auth form', async () => {
+    renderApp();
+    expect(await screen.findByLabelText('邮箱')).toBeInTheDocument();
+    expect(screen.getByLabelText('密码')).toBeInTheDocument();
   });
 
-  it('edits an existing diary entry', async () => {
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByText('+ 新建日记'));
-    await user.type(screen.getByLabelText('电影名称 *'), 'Inception');
-    await user.click(screen.getAllByRole('radio')[4]);
-    await user.click(screen.getByText('创建日记'));
-
-    await user.click(screen.getByText('编辑'));
-    expect(screen.getByText('编辑日记')).toBeInTheDocument();
-    expect(screen.getByLabelText('电影名称 *')).toHaveValue('Inception');
+  it('shows OAuth login buttons', async () => {
+    renderApp();
+    expect(await screen.findByText('GitHub 登录')).toBeInTheDocument();
+    expect(screen.getByText('Google 登录')).toBeInTheDocument();
   });
 
-  it('deletes a diary entry', async () => {
+  it('toggles between login and register modes', async () => {
     const user = userEvent.setup();
-    window.confirm = () => true;
-    render(<App />);
+    renderApp();
+    expect(await screen.findByRole('heading', { name: '登录' })).toBeInTheDocument();
 
-    await user.click(screen.getByText('+ 新建日记'));
-    await user.type(screen.getByLabelText('电影名称 *'), 'Inception');
-    await user.click(screen.getAllByRole('radio')[4]);
-    await user.click(screen.getByText('创建日记'));
+    await user.click(screen.getByText('立即注册'));
+    expect(screen.getByRole('heading', { name: '注册' })).toBeInTheDocument();
 
-    expect(screen.getByText('Inception')).toBeInTheDocument();
-    await user.click(screen.getByText('删除'));
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
-  });
-
-  it('cancels creation and returns to list', async () => {
-    const user = userEvent.setup();
-    render(<App />);
-
-    await user.click(screen.getByText('+ 新建日记'));
-    await user.click(screen.getByText('取消'));
-    expect(screen.getByText(/还没有日记/)).toBeInTheDocument();
+    await user.click(screen.getByText('立即登录'));
+    expect(screen.getByRole('heading', { name: '登录' })).toBeInTheDocument();
   });
 });
