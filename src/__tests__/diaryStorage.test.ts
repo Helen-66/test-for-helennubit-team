@@ -5,6 +5,7 @@ import {
   createEntry,
   updateEntry,
   deleteEntry,
+  toggleFavorite,
 } from '../services/diaryStorage';
 import type { DiaryEntryDraft } from '../types/diary';
 
@@ -17,6 +18,7 @@ const sampleDraft: DiaryEntryDraft = {
   watchDate: '2024-01-15',
   mood: '震撼',
   tags: ['烧脑', '科幻'],
+  isFavorite: false,
 };
 
 beforeEach(() => {
@@ -79,5 +81,18 @@ describe('diaryStorage', () => {
 
   it('returns false when deleting nonexistent entry', () => {
     expect(deleteEntry('fake')).toBe(false);
+  });
+
+  it('toggles favorite on an entry', () => {
+    const entry = createEntry(sampleDraft);
+    expect(entry.isFavorite).toBe(false);
+    const toggled = toggleFavorite(entry.id);
+    expect(toggled!.isFavorite).toBe(true);
+    const toggled2 = toggleFavorite(entry.id);
+    expect(toggled2!.isFavorite).toBe(false);
+  });
+
+  it('returns null when toggling favorite for nonexistent entry', () => {
+    expect(toggleFavorite('fake')).toBeNull();
   });
 });

@@ -23,6 +23,7 @@ function emptyDraft(): DiaryEntryDraft {
     watchDate: new Date().toISOString().split('T')[0],
     mood: '',
     tags: [],
+    isFavorite: false,
   };
 }
 

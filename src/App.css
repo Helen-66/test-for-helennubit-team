@@ -361,3 +361,481 @@ body {
   padding: 3rem 1rem;
   color: var(--color-text-muted);
 }
+
+/* ---- App Nav ---- */
+.app-header__title {
+  cursor: pointer;
+}
+
+.app-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn--sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.btn--active {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* ---- Favorite Button ---- */
+.favorite-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: transform 0.15s;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.2);
+}
+
+.diary-card__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ---- Filter indicator ---- */
+.filter-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ---- Tag Filter ---- */
+.tag-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.5rem;
+}
+
+.tag-filter__label {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.tag-filter__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tag-selector__hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* ---- Tag Manager ---- */
+.tag-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tag-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tag-manager__header h2 {
+  font-size: 1.25rem;
+}
+
+.tag-manager__create {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.tag-manager__create input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+/* Color Picker */
+.color-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.color-picker--small {
+  gap: 0.35rem;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.color-swatch--sm {
+  width: 22px;
+  height: 22px;
+}
+
+.color-swatch:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch--active {
+  border-color: var(--color-text);
+}
+
+/* Tag list items */
+.tag-manager__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tag-manager__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  cursor: grab;
+  transition: opacity 0.15s;
+}
+
+.tag-manager__item--dragging {
+  opacity: 0.5;
+}
+
+.tag-manager__drag-handle {
+  color: var(--color-text-muted);
+  cursor: grab;
+  user-select: none;
+}
+
+.tag-manager__color-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tag-manager__name {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.tag-manager__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tag-manager__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.tag-manager__edit input {
+  padding: 0.4rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+
+.tag-manager__edit-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ---- Watch Status ---- */
+.watch-status-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.watch-status-chip {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.watch-status-chip--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* ---- Watchlist Manager ---- */
+.watchlist-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.watchlist-manager__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.watchlist-manager__header h2 {
+  font-size: 1.25rem;
+}
+
+.watchlist-manager__header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.watchlist-manager__create {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.watchlist-manager__create input,
+.watchlist-manager__create textarea {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.watchlist-manager__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Watchlist card */
+.watchlist-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.watchlist-card:hover {
+  background: var(--color-surface-hover);
+}
+
+.watchlist-card--dragging {
+  opacity: 0.5;
+}
+
+.watchlist-card__drag-handle {
+  color: var(--color-text-muted);
+  cursor: grab;
+  user-select: none;
+}
+
+.watchlist-card__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.watchlist-card__name {
+  font-size: 1rem;
+}
+
+.watchlist-card__desc {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.watchlist-card__stats {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.watchlist-card__public {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ---- Watchlist Detail ---- */
+.watchlist-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.watchlist-detail__header {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.watchlist-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.watchlist-detail__info h2 {
+  font-size: 1.25rem;
+}
+
+.watchlist-detail__desc {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.watchlist-detail__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.watchlist-detail__share-msg {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  padding: 0.25rem 0;
+}
+
+.watchlist-detail__edit {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.watchlist-detail__edit input,
+.watchlist-detail__edit textarea {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.watchlist-detail__add-movie {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.watchlist-detail__add-movie h3 {
+  font-size: 1rem;
+}
+
+.watchlist-detail__add-movie input {
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.875rem;
+}
+
+.watchlist-detail__filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* Movie items in watchlist */
+.watchlist-detail__movies {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.watchlist-movie {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--color-surface);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  transition: opacity 0.15s;
+}
+
+.watchlist-movie--dragging {
+  opacity: 0.5;
+}
+
+.watchlist-movie__drag-handle {
+  color: var(--color-text-muted);
+  cursor: grab;
+  user-select: none;
+}
+
+.watchlist-movie__poster {
+  width: 40px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--color-surface-hover);
+}
+
+.watchlist-movie__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.watchlist-movie__title {
+  font-size: 0.9rem;
+  font-weight: 500;
+}

@@ -1,13 +1,26 @@
-import type { DiaryEntry } from '../types/diary';
+import { useState, useEffect } from 'react';
+import type { DiaryEntry, Tag } from '../types/diary';
+import { getAllTags } from '../services/tagStorage';
 import ReactMarkdown from 'react-markdown';
+import FavoriteButton from './FavoriteButton';
 
 interface DiaryCardProps {
   entry: DiaryEntry;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
+  onToggleFavorite: (id: string) => void;
 }
 
-export default function DiaryCard({ entry, onEdit, onDelete }: DiaryCardProps) {
+export default function DiaryCard({ entry, onEdit, onDelete, onToggleFavorite }: DiaryCardProps) {
+  const [tagsMap, setTagsMap] = useState<Record<string, Tag>>({});
+
+  useEffect(() => {
+    const tags = getAllTags();
+    const map: Record<string, Tag> = {};
+    for (const t of tags) map[t.name] = t;
+    setTagsMap(map);
+  }, []);
+
   return (
     <div className="diary-card">
       <div className="diary-card__header">
@@ -19,7 +32,13 @@ export default function DiaryCard({ entry, onEdit, onDelete }: DiaryCardProps) {
           />
         )}
         <div className="diary-card__info">
-          <h3 className="diary-card__title">{entry.movieTitle}</h3>
+          <div className="diary-card__title-row">
+            <h3 className="diary-card__title">{entry.movieTitle}</h3>
+            <FavoriteButton
+              isFavorite={entry.isFavorite}
+              onClick={() => onToggleFavorite(entry.id)}
+            />
+          </div>
           <div className="diary-card__rating">
             {'★'.repeat(entry.rating)}
             {'☆'.repeat(5 - entry.rating)}
@@ -30,11 +49,22 @@ export default function DiaryCard({ entry, onEdit, onDelete }: DiaryCardProps) {
       </div>
       {entry.tags.length > 0 && (
         <div className="diary-card__tags">
-          {entry.tags.map((tag) => (
-            <span key={tag} className="diary-card__tag">
-              {tag}
-            </span>
-          ))}
+          {entry.tags.map((tag) => {
+            const tagData = tagsMap[tag];
+            return (
+              <span
+                key={tag}
+                className="diary-card__tag"
+                style={
+                  tagData
+                    ? { borderColor: tagData.color, color: tagData.color }
+                    : undefined
+                }
+              >
+                {tag}
+              </span>
+            );
+          })}
         </div>
       )}
       {entry.review && (

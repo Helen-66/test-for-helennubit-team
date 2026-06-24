@@ -3,10 +3,17 @@ import type { DiaryEntry, DiaryEntryDraft } from '../types/diary';
 
 const STORAGE_KEY = 'movie-diary-entries';
 
+function migrateEntry(entry: DiaryEntry): DiaryEntry {
+  return {
+    ...entry,
+    isFavorite: entry.isFavorite ?? false,
+  };
+}
+
 function readAll(): DiaryEntry[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    return raw ? (JSON.parse(raw) as DiaryEntry[]).map(migrateEntry) : [];
   } catch {
     return [];
   }
@@ -59,4 +66,14 @@ export function deleteEntry(id: string): boolean {
   if (filtered.length === entries.length) return false;
   writeAll(filtered);
   return true;
+}
+
+export function toggleFavorite(id: string): DiaryEntry | null {
+  const entries = readAll();
+  const idx = entries.findIndex((e) => e.id === id);
+  if (idx === -1) return null;
+  entries[idx].isFavorite = !entries[idx].isFavorite;
+  entries[idx].updatedAt = new Date().toISOString();
+  writeAll(entries);
+  return entries[idx];
 }
