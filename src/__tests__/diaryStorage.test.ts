@@ -38,8 +38,13 @@ describe('diaryStorage', () => {
   });
 
   it('retrieves all entries sorted by most recent', () => {
-    createEntry({ ...sampleDraft, movieTitle: 'First' });
-    createEntry({ ...sampleDraft, movieTitle: 'Second' });
+    const first = createEntry({ ...sampleDraft, movieTitle: 'First' });
+    const second = createEntry({ ...sampleDraft, movieTitle: 'Second' });
+    // Manually set distinct timestamps to avoid same-millisecond race
+    const raw = JSON.parse(localStorage.getItem('movie-diary-entries')!);
+    raw.find((e: { id: string }) => e.id === first.id).updatedAt = '2024-01-01T00:00:00.000Z';
+    raw.find((e: { id: string }) => e.id === second.id).updatedAt = '2024-01-02T00:00:00.000Z';
+    localStorage.setItem('movie-diary-entries', JSON.stringify(raw));
     const all = getAllEntries();
     expect(all).toHaveLength(2);
     expect(all[0].movieTitle).toBe('Second');
