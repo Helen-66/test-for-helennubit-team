@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   getAllEntries,
   getEntryById,
@@ -38,8 +38,12 @@ describe('diaryStorage', () => {
   });
 
   it('retrieves all entries sorted by most recent', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2024-01-01T00:00:00Z'));
     createEntry({ ...sampleDraft, movieTitle: 'First' });
+    vi.setSystemTime(new Date('2024-01-02T00:00:00Z'));
     createEntry({ ...sampleDraft, movieTitle: 'Second' });
+    vi.useRealTimers();
     const all = getAllEntries();
     expect(all).toHaveLength(2);
     expect(all[0].movieTitle).toBe('Second');
