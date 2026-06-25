@@ -1,5 +1,6 @@
 import type { DiaryEntry } from '../types/diary';
 import ReactMarkdown from 'react-markdown';
+import LazyImage from './LazyImage';
 
 interface DiaryCardProps {
   entry: DiaryEntry;
@@ -12,10 +13,12 @@ export default function DiaryCard({ entry, onEdit, onDelete }: DiaryCardProps) {
     <div className="diary-card">
       <div className="diary-card__header">
         {entry.posterPath && (
-          <img
+          <LazyImage
             className="diary-card__poster"
             src={entry.posterPath}
             alt={entry.movieTitle}
+            width={60}
+            height={90}
           />
         )}
         <div className="diary-card__info">
