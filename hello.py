@@ -1,1 +1,5 @@
 print("Hello, World!")
+print("Welcome to the wonderful world of programming!")
+print("Today is a great day to write some code.")
+print("Let's build something amazing together!")
+print("Happy coding! :)")
