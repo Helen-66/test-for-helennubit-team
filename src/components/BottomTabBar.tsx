@@ -1,17 +1,15 @@
-import type { ReactNode } from 'react';
+import type { AppTab } from '../types/navigation';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
-type TabId = 'list' | 'create';
-
 interface BottomTabBarProps {
-  activeTab: TabId;
-  onTabChange: (tab: TabId) => void;
-  children?: ReactNode;
+  activeTab: AppTab;
+  onTabChange: (tab: AppTab) => void;
 }
 
-const tabs: { id: TabId; label: string; icon: string }[] = [
-  { id: 'list', label: '日记', icon: '📋' },
+const tabs: { id: AppTab; label: string; icon: string }[] = [
+  { id: 'diary', label: '日记', icon: '📋' },
   { id: 'create', label: '新建', icon: '✏️' },
+  { id: 'pets', label: '宠物', icon: '🐾' },
 ];
 
 export default function BottomTabBar({ activeTab, onTabChange }: BottomTabBarProps) {

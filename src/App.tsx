@@ -1,14 +1,24 @@
 import { useState, useCallback, useEffect } from 'react';
 import type { DiaryEntry, DiaryEntryDraft } from './types/diary';
+import type { PetCareRegistration, PetCareDraft } from './types/petCare';
+import type { AppTab, Section } from './types/navigation';
 import {
   getAllEntries,
   createEntry,
   updateEntry,
   deleteEntry,
 } from './services/diaryStorage';
+import {
+  getAllRegistrations,
+  createRegistration,
+  updateRegistration,
+  deleteRegistration,
+} from './services/petCareStorage';
 import DiaryForm from './components/DiaryForm';
 import DiaryCard from './components/DiaryCard';
 import DiaryCardSkeleton from './components/DiaryCardSkeleton';
+import PetCareForm from './components/PetCareForm';
+import PetCareCard from './components/PetCareCard';
 import BottomTabBar from './components/BottomTabBar';
 import PageTransition from './components/PageTransition';
 import PullIndicator from './components/PullIndicator';
@@ -17,12 +27,19 @@ import { useSwipeGesture } from './hooks/useSwipeGesture';
 import { usePullToRefresh } from './hooks/usePullToRefresh';
 import './App.css';
 
-type View = 'list' | 'create' | 'edit';
+type DiaryView = 'list' | 'create' | 'edit';
+type PetView = 'list' | 'register' | 'edit';
 
 export default function App() {
+  const [section, setSection] = useState<Section>('diary');
   const [entries, setEntries] = useState<DiaryEntry[]>(() => getAllEntries());
-  const [view, setView] = useState<View>('list');
+  const [registrations, setRegistrations] = useState<PetCareRegistration[]>(() =>
+    getAllRegistrations(),
+  );
+  const [view, setView] = useState<DiaryView>('list');
+  const [petView, setPetView] = useState<PetView>('list');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [petEditingId, setPetEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
 
@@ -31,18 +48,19 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  const refresh = useCallback(() => setEntries(getAllEntries()), []);
+  const refreshDiary = useCallback(() => setEntries(getAllEntries()), []);
+  const refreshPets = useCallback(() => setRegistrations(getAllRegistrations()), []);
 
   const handleCreate = (draft: DiaryEntryDraft) => {
     createEntry(draft);
-    refresh();
+    refreshDiary();
     setView('list');
   };
 
   const handleUpdate = (draft: DiaryEntryDraft) => {
     if (editingId) {
       updateEntry(editingId, draft);
-      refresh();
+      refreshDiary();
       setEditingId(null);
       setView('list');
     }
@@ -51,7 +69,7 @@ export default function App() {
   const handleDelete = (id: string) => {
     if (window.confirm('确定要删除这篇日记吗？')) {
       deleteEntry(id);
-      refresh();
+      refreshDiary();
     }
   };
 
@@ -60,29 +78,82 @@ export default function App() {
     setView('edit');
   };
 
-  const handleCancel = () => {
-    setEditingId(null);
-    setView('list');
+  const handlePetCreate = (draft: PetCareDraft) => {
+    createRegistration(draft);
+    refreshPets();
+    setPetView('list');
   };
 
-  const handleTabChange = (tab: 'list' | 'create') => {
-    if (tab === 'create') {
+  const handlePetUpdate = (draft: PetCareDraft) => {
+    if (petEditingId) {
+      updateRegistration(petEditingId, draft);
+      refreshPets();
+      setPetEditingId(null);
+      setPetView('list');
+    }
+  };
+
+  const handlePetDelete = (id: string) => {
+    if (window.confirm('确定要取消这条喂养预约吗？')) {
+      deleteRegistration(id);
+      refreshPets();
+    }
+  };
+
+  const handlePetEdit = (id: string) => {
+    setPetEditingId(id);
+    setPetView('edit');
+  };
+
+  const handleCancel = () => {
+    if (section === 'diary') {
       setEditingId(null);
-      setView('create');
+      setView('list');
     } else {
+      setPetEditingId(null);
+      setPetView('list');
+    }
+  };
+
+  const switchSection = (next: Section) => {
+    setSection(next);
+    if (next === 'diary') {
+      setPetEditingId(null);
+      setPetView('list');
+    } else {
+      setEditingId(null);
       setView('list');
     }
   };
 
+  const handleTabChange = (tab: AppTab) => {
+    if (tab === 'diary') {
+      switchSection('diary');
+      setView('list');
+    } else if (tab === 'create') {
+      switchSection('diary');
+      setEditingId(null);
+      setView('create');
+    } else {
+      switchSection('pets');
+    }
+  };
+
+  const isListView =
+    section === 'diary' ? view === 'list' : petView === 'list';
+
   const swipeHandlers = useSwipeGesture({
     onSwipeLeft: () => {
-      if (view === 'list') {
+      if (section === 'diary' && view === 'list') {
         setEditingId(null);
         setView('create');
+      } else if (section === 'pets' && petView === 'list') {
+        setPetEditingId(null);
+        setPetView('register');
       }
     },
     onSwipeRight: () => {
-      if (view !== 'list') {
+      if (!isListView) {
         handleCancel();
       }
     },
@@ -91,13 +162,26 @@ export default function App() {
   const { pullDistance, isRefreshing, handlers: pullHandlers } = usePullToRefresh({
     onRefresh: async () => {
       await new Promise((r) => setTimeout(r, 500));
-      refresh();
+      if (section === 'diary') refreshDiary();
+      else refreshPets();
     },
   });
 
-  const editingEntry = editingId ? entries.find((e) => e.id === editingId) : undefined;
+  const editingEntry = editingId
+    ? entries.find((e) => e.id === editingId)
+    : undefined;
+  const editingReg = petEditingId
+    ? registrations.find((r) => r.id === petEditingId)
+    : undefined;
 
-  const touchProps = view === 'list'
+  const activeTab: AppTab =
+    section === 'pets'
+      ? 'pets'
+      : view === 'list'
+        ? 'diary'
+        : 'create';
+
+  const touchProps = isListView
     ? {
         onTouchStart: (e: React.TouchEvent) => {
           swipeHandlers.onTouchStart(e);
@@ -117,21 +201,53 @@ export default function App() {
   return (
     <div className={`app ${isMobile ? 'app--mobile' : ''}`} {...touchProps}>
       <header className="app-header">
-        <h1>📝 观影日记</h1>
-        {view === 'list' && !isMobile && (
-          <button className="btn btn--primary" onClick={() => setView('create')}>
-            + 新建日记
-          </button>
-        )}
-        {view !== 'list' && isMobile && (
-          <button className="btn btn--secondary btn--back" onClick={handleCancel}>
-            ← 返回
-          </button>
-        )}
+        <h1>{section === 'diary' ? '📝 观影日记' : '🐾 宠物上门喂养'}</h1>
+        <div className="app-header__actions">
+          {!isMobile && (
+            <div className="section-switch" role="tablist" aria-label="切换模块">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={section === 'diary'}
+                className={`section-switch__btn ${section === 'diary' ? 'section-switch__btn--active' : ''}`}
+                onClick={() => switchSection('diary')}
+              >
+                日记
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={section === 'pets'}
+                className={`section-switch__btn ${section === 'pets' ? 'section-switch__btn--active' : ''}`}
+                onClick={() => switchSection('pets')}
+              >
+                宠物
+              </button>
+            </div>
+          )}
+          {section === 'diary' && view === 'list' && !isMobile && (
+            <button className="btn btn--primary" onClick={() => setView('create')}>
+              + 新建日记
+            </button>
+          )}
+          {section === 'pets' && petView === 'list' && !isMobile && (
+            <button
+              className="btn btn--primary"
+              onClick={() => setPetView('register')}
+            >
+              + 新建预约
+            </button>
+          )}
+          {isMobile && !isListView && (
+            <button className="btn btn--secondary btn--back" onClick={handleCancel}>
+              ← 返回
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="app-main">
-        {view === 'list' && (
+        {isListView && (
           <PullIndicator
             pullDistance={pullDistance}
             isRefreshing={isRefreshing}
@@ -139,12 +255,12 @@ export default function App() {
           />
         )}
 
-        <PageTransition viewKey={view}>
-          {view === 'create' && (
+        <PageTransition viewKey={`${section}-${section === 'diary' ? view : petView}`}>
+          {section === 'diary' && view === 'create' && (
             <DiaryForm onSubmit={handleCreate} onCancel={handleCancel} />
           )}
 
-          {view === 'edit' && editingEntry && (
+          {section === 'diary' && view === 'edit' && editingEntry && (
             <DiaryForm
               initial={editingEntry}
               onSubmit={handleUpdate}
@@ -152,7 +268,7 @@ export default function App() {
             />
           )}
 
-          {view === 'list' && (
+          {section === 'diary' && view === 'list' && (
             <>
               {isLoading ? (
                 <div className="diary-list">
@@ -178,13 +294,48 @@ export default function App() {
               )}
             </>
           )}
+
+          {section === 'pets' && petView === 'register' && (
+            <PetCareForm onSubmit={handlePetCreate} onCancel={handleCancel} />
+          )}
+
+          {section === 'pets' && petView === 'edit' && editingReg && (
+            <PetCareForm
+              initial={editingReg}
+              onSubmit={handlePetUpdate}
+              onCancel={handleCancel}
+            />
+          )}
+
+          {section === 'pets' && petView === 'list' && (
+            <>
+              {isLoading ? (
+                <div className="diary-list">
+                  <DiaryCardSkeleton />
+                  <DiaryCardSkeleton />
+                </div>
+              ) : registrations.length === 0 ? (
+                <div className="empty-state">
+                  <p>还没有喂养预约，点击「新建预约」开始登记吧！</p>
+                </div>
+              ) : (
+                <div className="pet-list">
+                  {registrations.map((reg) => (
+                    <PetCareCard
+                      key={reg.id}
+                      registration={reg}
+                      onEdit={handlePetEdit}
+                      onDelete={handlePetDelete}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </PageTransition>
       </main>
 
-      <BottomTabBar
-        activeTab={view === 'list' ? 'list' : 'create'}
-        onTabChange={handleTabChange}
-      />
+      <BottomTabBar activeTab={activeTab} onTabChange={handleTabChange} />
     </div>
   );
 }
